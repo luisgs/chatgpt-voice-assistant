@@ -5,7 +5,6 @@ import speech_recognition as sr
 import pyttsx3
 import numpy as np
 import logging
-import traceback
 import sys
 # from os.path import join, dirname
 # import matplotlib.pyplot as plt
@@ -30,11 +29,13 @@ voice = engine.getProperty('voices')[1]
 engine.setProperty('voice', voice.id)
 name = "John Doe"
 welcome = [f"Hello there! My name is {name}. Im ready!"]
-greetings = [f"whats up master {name}",
-             "yeah?",
-             "Well, hello there, Master of Puns and Jokes - how's it going today?",
-             f"Ahoy there, Captain {name}! How's the ship sailing?",
-             f"Bonjour, Monsieur {name}! Comment ça va? Wait, why the hell am I speaking French?" ]
+greetings = [f"whats up master {name}, Feel free to ask me anything you'd like.",
+             "yeah? Feel free to ask me anything you'd like.",
+             "WHat do you need assistance for? I'm here to help?",
+             f"Ahoy there, Captain {name}! Please ask me now!",
+             "Ask your question please"]
+
+goodbyes = ["I did not hear anything else from you so I will go back to rest. if you need anything call me again!"]
 
 # Listen for the wake word "hey pos"
 def listen_for_wake_word(source):
@@ -42,6 +43,7 @@ def listen_for_wake_word(source):
 
     logging.info(f"Listening for the wake up word: '{wake_up_word}'...")
     engine.say(np.random.choice(welcome))
+    engine.runAndWait()
 
     while True:
         try:
@@ -61,8 +63,7 @@ def listen_for_wake_word(source):
                 listen_and_respond(source)
                 break
             else:
-
-                logging.info("Wake word NOT detected.")
+                logging.info("Wake up word NOT detected.")
         except sr.UnknownValueError:
             pass
 
@@ -77,6 +78,7 @@ def listen_and_respond(source):
         except:
             logging.error("ERROR: something happen while listening. Script is stopped")
             break
+
         try:
             text = r.recognize_google(audio)
             logging.info(f"You said: {text}")
@@ -99,8 +101,10 @@ def listen_and_respond(source):
             if not audio:
                 listen_for_wake_word(source)
         except sr.UnknownValueError:
-            time.sleep(2)
+            time.sleep(5)   # Waiting time for next question.
             logging.info("Silence found, shutting up, listening...")
+            engine.say(np.random.choice(goodbyes))
+            engine.runAndWait()
             listen_for_wake_word(source)
             break
 
